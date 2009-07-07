@@ -27,7 +27,7 @@
 #import "CJMultiValue.h"
 
 // This will work with 2.x or 3.0, use this to be compatible with 2.x
-#define FIRMWARE_2_COMPATIBILITY 1
+#define FIRMWARE_2_COMPATIBILITY 0
 
 @implementation CJMultiValue
 
@@ -45,6 +45,7 @@
   return self;
 }
 
+
 - (void)loadView {
   if (_canCancel) {
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] 
@@ -55,35 +56,40 @@
   [super loadView];
 }
 
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
   return 1;
 }
+
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
   return [_choices count];
 }
 
+
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
   return _headerNote;
 }
 
+
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
   return _footerNote;
 }
+
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
   static NSString *cellID = @"CJMultiValueCell";
   
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellID];
   if (cell == nil) {
-#define FIRMWARE_2_COMPATIBILITY
+#if FIRMWARE_2_COMPATIBILITY
     cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:cellID] autorelease];
 #else
     cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID] autorelease];
 #endif
   }
   
-#define FIRMWARE_2_COMPATIBILITY
+#if FIRMWARE_2_COMPATIBILITY
   cell.text = NSLocalizedString([_choices objectAtIndex:indexPath.row], @"CJMultiValue Label");
 #else
   cell.textLabel.text =  NSLocalizedString([_choices objectAtIndex:indexPath.row], @"CJMultiValue Label");
@@ -92,6 +98,7 @@
   return cell;
 }
 
+
 - (void)dismiss {
   if ([_delegate respondsToSelector:@selector(multiValue:willDismissWithChoice:)]) {
     [_delegate multiValue:self willDismissWithChoice:_choice];
@@ -99,10 +106,12 @@
   [self.parentViewController dismissModalViewControllerAnimated:YES];  
 }
 
+
 - (void)cancel {
   self.choice = nil;
   [self dismiss];
 }
+
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
   self.choice = [_choices objectAtIndex:indexPath.row];
