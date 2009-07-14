@@ -31,31 +31,39 @@
 
 @implementation CJMultiValue
 
-@synthesize headerNote = _headerNote, footerNote = _footerNote, choices = _choices;
-@synthesize choice = _choice, canCancel = _canCancel, delegate = _delegate;
+@synthesize tableView = _tableView, headerNote = _headerNote, footerNote = _footerNote, choices = _choices;
+@synthesize choice = _choice, canCancel = _canCancel, del = _del;
 
 - (id)initWithTitle:(NSString *)title delegate:(id<CJMultiValueDelegate>)delegate choices:(NSArray *)choices {
-  self = [super initWithStyle:UITableViewStyleGrouped];
+  _tableView = [[UITableViewController alloc] initWithStyle:UITableViewStyleGrouped];
+  _tableView.tableView.dataSource = self;
+  _tableView.tableView.delegate = self;
+  self = [super initWithRootViewController:_tableView];
   if (self) {
-    self.title = title;
-    self.delegate = delegate;
+    _tableView.title = title;
+    self.del = delegate;
     self.choices = choices;    
   }
+  
+  [_tableView release];
   
   return self;
 }
 
 
-- (void)loadView {
+- (void) setCanCancel:(BOOL)canCancel {
+  NSLog(@"canCancel set %d", canCancel);
+  _canCancel = canCancel;
   if (_canCancel) {
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] 
+    _tableView.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] 
                                               initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                               target:self 
                                               action:@selector(cancel)];
   }
-  [super loadView];
+  else {
+    _tableView.navigationItem.rightBarButtonItem = nil;
+  }
 }
-
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
   return 1;
@@ -94,14 +102,14 @@
 #else
   cell.textLabel.text =  NSLocalizedString([_choices objectAtIndex:indexPath.row], @"CJMultiValue Label");
 #endif
-
+  
   return cell;
 }
 
 
 - (void)dismiss {
-  if ([_delegate respondsToSelector:@selector(multiValue:willDismissWithChoice:)]) {
-    [_delegate multiValue:self willDismissWithChoice:_choice];
+  if ([_del respondsToSelector:@selector(multiValue:willDismissWithChoice:)]) {
+    [_del multiValue:self willDismissWithChoice:_choice];
   }  
   [self.parentViewController dismissModalViewControllerAnimated:YES];  
 }
@@ -115,7 +123,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
   self.choice = [_choices objectAtIndex:indexPath.row];
-  [tableView deselectRowAtIndexPath:indexPath animated:YES];
+  [_tableView.tableView deselectRowAtIndexPath:indexPath animated:YES];
   [self dismiss];
 }
 
@@ -129,6 +137,5 @@
   
   [super dealloc];
 }
-
 
 @end

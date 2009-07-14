@@ -28,18 +28,20 @@
 
 @protocol CJMultiValueDelegate;
 
-@interface CJMultiValue : UITableViewController {
+@interface CJMultiValue : UINavigationController <UITableViewDelegate, UITableViewDataSource> {
+  UITableViewController *_tableView;
   NSString *_headerNote;
   NSString *_footerNote;
   NSString *_choice;
   NSArray *_choices;
   BOOL _canCancel;
-  id <CJMultiValueDelegate> _delegate;
+  id <CJMultiValueDelegate> _del;
 }
 
 - (id)initWithTitle:(NSString *)title delegate:(id<CJMultiValueDelegate>)delegate choices:(NSArray *)choices;
 
-@property (nonatomic,assign) id<CJMultiValueDelegate> delegate;
+@property (nonatomic, retain) UITableViewController *tableView;
+@property (nonatomic, assign) id<CJMultiValueDelegate> del;
 @property (nonatomic, retain) NSString *headerNote;
 @property (nonatomic, retain) NSString *footerNote;
 @property (nonatomic, retain) NSString *choice;
